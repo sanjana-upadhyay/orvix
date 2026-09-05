@@ -21,6 +21,7 @@ export default function Questions() {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [scores, setScores] = useState([]);
   const [sessionDone, setSessionDone] = useState(false);
+  const [avgScore, setAvgScore] = useState(0);
 
   const router = useRouter();
 
@@ -80,26 +81,50 @@ export default function Questions() {
     }
   };
 
+  const saveSessionToHistory = (finalAvgScore) => {
+    const session = {
+      id: Date.now(),
+      role,
+      avgScore: parseFloat(finalAvgScore),
+      totalQuestions: questions.length,
+      date: new Date().toISOString(),
+    };
+    const existing = JSON.parse(
+      localStorage.getItem("orvix_sessions") || "[]"
+    );
+    existing.unshift(session);
+    localStorage.setItem("orvix_sessions", JSON.stringify(existing));
+  };
+
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setAnswer("");
       setFeedback(null);
     } else {
+      const finalScores = scores;
+      const calculatedAvg =
+        finalScores.length > 0
+          ? (
+              finalScores.reduce((a, b) => a + b, 0) / finalScores.length
+            ).toFixed(1)
+          : 0;
+      setAvgScore(calculatedAvg);
+      saveSessionToHistory(calculatedAvg);
       setSessionDone(true);
     }
   };
 
-  // ---------- LOADING STATE ----------
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        <p className="text-lg animate-pulse">Questions generate ho rahe hain...</p>
+        <p className="text-lg animate-pulse">
+          Questions generate ho rahe hain...
+        </p>
       </main>
     );
   }
 
-  // ---------- ERROR STATE ----------
   if (error) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4">
@@ -114,30 +139,31 @@ export default function Questions() {
     );
   }
 
-  // ---------- SESSION DONE STATE ----------
   if (sessionDone) {
-    const avgScore =
-      scores.length > 0
-        ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)
-        : 0;
-
     return (
       <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4">
         <h2 className="text-3xl font-bold mb-4">Session Complete! 🎉</h2>
         <p className="text-slate-300 mb-2">Role: {role}</p>
         <p className="text-5xl font-bold text-blue-400 my-4">{avgScore}/10</p>
         <p className="text-slate-400 mb-8">Average Score</p>
-        <button
-          onClick={() => router.push("/")}
-          className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 font-semibold"
-        >
-          Back to Home
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => router.push("/")}
+            className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 font-semibold"
+          >
+            Back to Home
+          </button>
+          <button
+            onClick={() => router.push("/history")}
+            className="px-6 py-3 bg-slate-700 rounded-lg hover:bg-slate-600 font-semibold"
+          >
+            View History
+          </button>
+        </div>
       </main>
     );
   }
 
-  // ---------- MAIN QUESTION/ANSWER/FEEDBACK STATE ----------
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4 py-10">
       <div className="w-full max-w-xl">
