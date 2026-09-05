@@ -28,21 +28,29 @@ export default function Home() {
       </p>
 
       <div className="w-full max-w-md">
-        <input
-          type="text"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          placeholder="e.g. Frontend Developer at a startup"
-          className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={handleStart}
-          disabled={loading}
-          className="w-full mt-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold transition disabled:opacity-50"
-        >
-          {loading ? "Loading..." : "Start Practice →"}
-        </button>
-      </div>
+      
+  <input
+    type="text"
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+    placeholder="e.g. Frontend Developer at a startup"
+    className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+  <button
+    onClick={handleStart}
+    disabled={loading}
+    className="w-full mt-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold transition disabled:opacity-50"
+  >
+    {loading ? "Loading..." : "Start Practice →"}
+  </button>
+  <button
+    onClick={() => router.push("/history")}
+    className="w-full mt-3 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 font-semibold transition"
+  >
+    View History
+  </button>
+</div>
+      
     </main>
   );
 }
