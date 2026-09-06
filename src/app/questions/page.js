@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -31,6 +31,10 @@ export default function Questions() {
   const [sessionDone, setSessionDone] = useState(false);
   const [avgScore, setAvgScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(120);
+
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(true);
+  const recognitionRef = useRef(null);
 
   const router = useRouter();
 
@@ -64,8 +68,62 @@ export default function Questions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Setup speech recognition once
+  useEffect(() => {
+    const SpeechRecognition =
+      typeof window !== "undefined" &&
+      (window.SpeechRecognition || window.webkitSpeechRecognition);
+
+    if (!SpeechRecognition) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVoiceSupported(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setAnswer(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) return;
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      setAnswer("");
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
   const handleSubmitAnswer = async () => {
     if (!answer.trim()) return;
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
     setFeedbackLoading(true);
     try {
       const res = await fetch("/api/get-feedback", {
@@ -229,14 +287,43 @@ export default function Questions() {
           {questions[currentIndex]}
         </h2>
 
-        <textarea
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Type your answer here..."
-          rows={6}
-          disabled={!!feedback}
-          className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
-        />
+        <div className="relative">
+          <textarea
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            placeholder="Type your answer here, or use the mic to speak..."
+            rows={6}
+            disabled={!!feedback}
+            className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+          />
+          {voiceSupported && !feedback && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleListening}
+              type="button"
+              title={isListening ? "Stop recording" : "Start voice input"}
+              className={`absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center transition ${
+                isListening
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-slate-700 hover:bg-slate-600"
+              }`}
+            >
+              {isListening ? "⏹" : "🎤"}
+            </motion.button>
+          )}
+        </div>
+
+        {isListening && (
+          <p className="text-sm text-red-400 mt-2 animate-pulse">
+            🔴 Listening... speak your answer
+          </p>
+        )}
+        {!voiceSupported && (
+          <p className="text-xs text-slate-500 mt-2">
+            Voice input is not supported in this browser. Try Chrome for the best experience.
+          </p>
+        )}
 
         {!feedback && (
           <motion.button
