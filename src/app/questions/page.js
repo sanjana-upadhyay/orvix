@@ -12,6 +12,13 @@ export default function Questions() {
     return "";
   });
 
+  const [category] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("targetCategory") || "mixed";
+    }
+    return "mixed";
+  });
+
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -27,14 +34,14 @@ export default function Questions() {
 
   const router = useRouter();
 
-  const fetchQuestions = async (role) => {
+  const fetchQuestions = async (role, category) => {
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/generate-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role }),
+        body: JSON.stringify({ role, category }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -53,7 +60,7 @@ export default function Questions() {
       return;
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchQuestions(role);
+    fetchQuestions(role, category);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -86,11 +93,11 @@ export default function Questions() {
   useEffect(() => {
     if (loading || feedback || sessionDone) return;
 
-   if (timeLeft <= 0) {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  handleSubmitAnswer();
-  return;
-}
+    if (timeLeft <= 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      handleSubmitAnswer();
+      return;
+    }
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
@@ -104,6 +111,7 @@ export default function Questions() {
     const session = {
       id: Date.now(),
       role,
+      category,
       avgScore: parseFloat(finalAvgScore),
       totalQuestions: questions.length,
       date: new Date().toISOString(),
@@ -154,7 +162,7 @@ export default function Questions() {
       <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4">
         <p className="text-red-400 mb-4">{error}</p>
         <button
-          onClick={() => fetchQuestions(role)}
+          onClick={() => fetchQuestions(role, category)}
           className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           Try Again
