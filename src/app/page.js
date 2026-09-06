@@ -10,7 +10,7 @@ export default function Home() {
 
   const handleStart = () => {
     if (!role.trim()) {
-      alert("Pehle apna target role likho!");
+      alert("First, write your target role!");
       return;
     }
     setLoading(true);
@@ -21,11 +21,11 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 text-white px-4">
       <h1 className="text-4xl md:text-5xl font-bold mb-3 text-center">
-        Orvix 🎯
-      </h1>
-      <p className="text-slate-300 mb-8 text-center max-w-md">
-        AI-powered mock interview practice. Apna target role daalo, aur practice shuru karo.
-      </p>
+  Orvix 🎯
+</h1>
+<p className="text-slate-300 mb-8 text-center max-w-md">
+  AI-powered mock interview practice. Enter your target role and start practicing.
+</p>
 
       <div className="w-full max-w-md">
       

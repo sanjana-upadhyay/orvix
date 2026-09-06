@@ -38,7 +38,7 @@ export default function Questions() {
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       setQuestions(data.questions);
     } catch (err) {
-      setError("Questions generate nahi ho paaye. Dobara try karo.");
+      setError("Questions could not be generated. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -75,7 +75,7 @@ export default function Questions() {
       setScores((prev) => [...prev, data.feedback.score]);
     } catch (err) {
       console.error(err);
-      alert("Feedback generate nahi ho paaya. Dobara try karo.");
+      alert("Feedback could not be generate. please try again.");
     } finally {
       setFeedbackLoading(false);
     }
@@ -119,7 +119,7 @@ export default function Questions() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
         <p className="text-lg animate-pulse">
-          Questions generate ho rahe hain...
+          Questions is generating...
         </p>
       </main>
     );
@@ -133,7 +133,7 @@ export default function Questions() {
           onClick={() => fetchQuestions(role)}
           className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
         >
-          Dobara try karo
+          please try again
         </button>
       </main>
     );
@@ -177,7 +177,7 @@ export default function Questions() {
         <textarea
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Apna answer yahan likho..."
+          placeholder="Write your answer here..."
           rows={6}
           disabled={!!feedback}
           className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
@@ -211,6 +211,12 @@ export default function Questions() {
               </span>
               {feedback.improvements}
             </p>
+            {feedback.betterAnswerTip && (
+              <p className="text-slate-300 mt-2">
+                <span className="font-medium text-blue-400">Tip: </span>
+                {feedback.betterAnswerTip}
+              </p>
+            )}
 
             <button
               onClick={handleNext}
