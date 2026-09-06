@@ -23,6 +23,7 @@ export default function Questions() {
   const [scores, setScores] = useState([]);
   const [sessionDone, setSessionDone] = useState(false);
   const [avgScore, setAvgScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(120);
 
   const router = useRouter();
 
@@ -82,6 +83,23 @@ export default function Questions() {
     }
   };
 
+  useEffect(() => {
+    if (loading || feedback || sessionDone) return;
+
+   if (timeLeft <= 0) {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  handleSubmitAnswer();
+  return;
+}
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, loading, feedback, sessionDone]);
+
   const saveSessionToHistory = (finalAvgScore) => {
     const session = {
       id: Date.now(),
@@ -102,6 +120,7 @@ export default function Questions() {
       setCurrentIndex(currentIndex + 1);
       setAnswer("");
       setFeedback(null);
+      setTimeLeft(120);
     } else {
       const finalScores = scores;
       const calculatedAvg =
@@ -190,9 +209,14 @@ export default function Questions() {
         transition={{ duration: 0.3 }}
         className="w-full max-w-xl"
       >
-        <p className="text-slate-400 text-sm mb-2">
-          Question {currentIndex + 1} of {questions.length} — {role}
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-slate-400 text-sm">
+            Question {currentIndex + 1} of {questions.length} — {role}
+          </p>
+          <p className={`text-sm font-semibold ${timeLeft <= 20 ? "text-red-400" : "text-slate-400"}`}>
+            ⏱ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
+          </p>
+        </div>
         <h2 className="text-2xl font-semibold mb-6">
           {questions[currentIndex]}
         </h2>
