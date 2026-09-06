@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function Questions() {
   const [role] = useState(() => {
@@ -38,7 +39,7 @@ export default function Questions() {
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       setQuestions(data.questions);
     } catch (err) {
-      setError("Questions could not be generated. Please try again.");
+      setError("Could not generate questions. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -75,7 +76,7 @@ export default function Questions() {
       setScores((prev) => [...prev, data.feedback.score]);
     } catch (err) {
       console.error(err);
-      alert("Feedback could not be generate. please try again.");
+      alert("Could not generate feedback. Please try again.");
     } finally {
       setFeedbackLoading(false);
     }
@@ -118,9 +119,13 @@ export default function Questions() {
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        <p className="text-lg animate-pulse">
-          Questions is generating...
-        </p>
+        <motion.p
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="text-lg"
+        >
+          Generating your interview questions...
+        </motion.p>
       </main>
     );
   }
@@ -133,7 +138,7 @@ export default function Questions() {
           onClick={() => fetchQuestions(role)}
           className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
         >
-          please try again
+          Try Again
         </button>
       </main>
     );
@@ -141,10 +146,22 @@ export default function Questions() {
 
   if (sessionDone) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4">
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4"
+      >
         <h2 className="text-3xl font-bold mb-4">Session Complete! 🎉</h2>
         <p className="text-slate-300 mb-2">Role: {role}</p>
-        <p className="text-5xl font-bold text-blue-400 my-4">{avgScore}/10</p>
+        <motion.p
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          className="text-5xl font-bold text-blue-400 my-4"
+        >
+          {avgScore}/10
+        </motion.p>
         <p className="text-slate-400 mb-8">Average Score</p>
         <div className="flex gap-3">
           <button
@@ -160,13 +177,19 @@ export default function Questions() {
             View History
           </button>
         </div>
-      </main>
+      </motion.main>
     );
   }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4 py-10">
-      <div className="w-full max-w-xl">
+      <motion.div
+        key={currentIndex}
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-xl"
+      >
         <p className="text-slate-400 text-sm mb-2">
           Question {currentIndex + 1} of {questions.length} — {role}
         </p>
@@ -177,24 +200,31 @@ export default function Questions() {
         <textarea
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Write your answer here..."
+          placeholder="Type your answer here..."
           rows={6}
           disabled={!!feedback}
           className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
         />
 
         {!feedback && (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleSubmitAnswer}
             disabled={!answer.trim() || feedbackLoading}
             className="w-full mt-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold transition disabled:opacity-50"
           >
-            {feedbackLoading ? "Feedback aa raha hai..." : "Submit Answer"}
-          </button>
+            {feedbackLoading ? "Generating feedback..." : "Submit Answer"}
+          </motion.button>
         )}
 
         {feedback && (
-          <div className="mt-6 bg-slate-800 border border-slate-600 rounded-lg p-5">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mt-6 bg-slate-800 border border-slate-600 rounded-lg p-5"
+          >
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-lg">Feedback</h3>
               <span className="text-2xl font-bold text-blue-400">
@@ -218,17 +248,19 @@ export default function Questions() {
               </p>
             )}
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleNext}
               className="w-full mt-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold transition"
             >
               {currentIndex < questions.length - 1
                 ? "Next Question →"
                 : "Finish Session"}
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </main>
   );
 }

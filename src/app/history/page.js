@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function History() {
   const [sessions, setSessions] = useState([]);
@@ -14,7 +15,7 @@ export default function History() {
   }, []);
 
   const clearHistory = () => {
-    if (confirm("Saari history delete karni hai?")) {
+    if (confirm("Delete all practice history?")) {
       localStorage.removeItem("orvix_sessions");
       setSessions([]);
     }
@@ -35,14 +36,17 @@ export default function History() {
 
         {sessions.length === 0 ? (
           <p className="text-slate-400 text-center mt-16">
-            Abhi tak koi practice session nahi hui. Chalo shuru karte hain!
+            No practice sessions yet. get started!
           </p>
         ) : (
           <>
             <div className="space-y-3">
-              {sessions.map((s) => (
-                <div
+              {sessions.map((s, i) => (
+                <motion.div
                   key={s.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.05 }}
                   className="bg-slate-800 border border-slate-600 rounded-lg p-4 flex items-center justify-between"
                 >
                   <div>
@@ -61,7 +65,7 @@ export default function History() {
                   <span className="text-2xl font-bold text-blue-400">
                     {s.avgScore}/10
                   </span>
-                </div>
+                </motion.div>
               ))}
             </div>
 
