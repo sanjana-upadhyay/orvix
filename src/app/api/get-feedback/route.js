@@ -47,7 +47,8 @@ Respond ONLY with valid JSON in this exact format, nothing else, no markdown:
   "score": <number 1-10>,
   "strengths": "<specific things the candidate did well, 1-2 sentences, be concrete not generic>",
   "improvements": "<specific, actionable things missing or weak, 1-2 sentences>",
-  "betterAnswerTip": "<one concrete suggestion or example phrase that would make the answer stronger, 1-2 sentences>"
+  "betterAnswerTip": "<one concrete suggestion or example phrase that would make the answer stronger, 1-2 sentences>",
+  "sampleAnswer": "<a strong, concise example answer to this exact question, 2-4 sentences, written as if a great candidate answered it>"
 }`;
 
     const result = await generateWithRetry(model, prompt);
@@ -59,7 +60,7 @@ Respond ONLY with valid JSON in this exact format, nothing else, no markdown:
   } catch (error) {
     console.error("Gemini feedback error:", error);
     return NextResponse.json(
-      { error: "Gemini is busy now. try again later." },
+      { error: "Gemini is currently busy. Please try again shortly." },
       { status: 500 }
     );
   }

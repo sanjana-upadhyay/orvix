@@ -10,6 +10,8 @@ export default function Home() {
   const [category, setCategory] = useState("mixed");
   const [resumeText, setResumeText] = useState("");
   const [showResume, setShowResume] = useState(false);
+  const [jobDescription, setJobDescription] = useState("");
+  const [showJD, setShowJD] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function Home() {
     sessionStorage.setItem("targetRole", role);
     sessionStorage.setItem("targetCategory", category);
     sessionStorage.setItem("resumeText", resumeText);
+    sessionStorage.setItem("jobDescription", jobDescription);
     router.push("/questions");
   };
 
@@ -39,39 +42,46 @@ export default function Home() {
   };
 
   const categories = [
-    { id: "mixed", label: "Mixed", bg: "bg-zinc-900", active: "bg-zinc-600", border: "border-zinc-600" },
-    { id: "technical", label: "Technical", bg: "bg-zinc-900", active: "bg-teal-700", border: "border-teal-700" },
-    { id: "behavioral", label: "Behavioral", bg: "bg-zinc-900", active: "bg-teal-600", border: "border-teal-600" },
-    { id: "system-design", label: "System Design", bg: "bg-zinc-900", active: "bg-zinc-600", border: "border-zinc-600" },
+    { id: "mixed", label: "Mixed", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
+    { id: "technical", label: "Technical", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
+    { id: "behavioral", label: "Behavioral", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
+    { id: "system-design", label: "System Design", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
   ];
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen flex flex-col items-center px-4 bg-[#0a0a0a] py-14">
+      <main
+        className="min-h-screen flex flex-col items-center px-4 py-16"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 50% at 50% -5%, rgba(45, 212, 191, 0.30), rgba(59, 130, 246, 0.15), #ffffff 60%)",
+        }}
+      >
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-full px-4 py-1.5 mb-6"
+          className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 mb-6 shadow-sm"
         >
-          <span className="text-xs font-semibold text-teal-400">✦ AI-Powered Practice</span>
+          <span className="text-yellow-500 text-xs">★★★★★</span>
+          <span className="text-xs font-semibold text-gray-600">4.9/5 · AI-Powered Practice</span>
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="text-3xl sm:text-4xl font-extrabold text-center mb-3 text-white max-w-lg leading-tight"
+          className="text-4xl sm:text-5xl font-extrabold text-center mb-4 text-gray-900 max-w-xl leading-tight"
         >
-          Practice mock interviews. Get better every time.
+          AI Mock Interview Practice
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="text-zinc-400 mb-10 text-center max-w-sm font-medium text-sm"
+          className="text-gray-500 mb-10 text-center max-w-md font-medium text-sm"
         >
           Role-specific AI questions, instant feedback, and a personalized prep plan based on your resume.
         </motion.p>
@@ -80,9 +90,9 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="w-full max-w-md bg-zinc-950 rounded-3xl p-6 border-2 border-zinc-800 shadow-lg"
+          className="w-full max-w-md bg-white rounded-3xl p-6 border border-gray-200 shadow-xl"
         >
-          <label className="text-sm font-bold text-zinc-300 mb-2 block">
+          <label className="text-sm font-bold text-gray-700 mb-2 block">
             What role are you preparing for?
           </label>
           <input
@@ -90,10 +100,10 @@ export default function Home() {
             value={role}
             onChange={(e) => setRole(e.target.value)}
             placeholder="e.g. Frontend Developer at a startup"
-            className="w-full px-4 py-3 rounded-2xl bg-zinc-900 border-2 border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:border-teal-600 transition font-medium text-sm"
+            className="w-full px-4 py-3 rounded-2xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-teal-500 transition font-medium text-sm"
           />
 
-          <label className="text-sm font-bold text-zinc-300 mt-5 mb-2 block">
+          <label className="text-sm font-bold text-gray-700 mt-5 mb-2 block">
             Question Type
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -105,7 +115,7 @@ export default function Home() {
                 className={`py-3 px-3 rounded-2xl text-sm font-bold transition border-2 ${
                   category === cat.id
                     ? `${cat.active} text-white ${cat.border}`
-                    : `${cat.bg} text-zinc-400 border-transparent hover:border-zinc-700`
+                    : `${cat.bg} text-gray-500 border-transparent hover:border-gray-300`
                 }`}
               >
                 {cat.label}
@@ -115,10 +125,10 @@ export default function Home() {
 
           <button
             onClick={() => setShowResume(!showResume)}
-            className="w-full mt-5 flex items-center justify-between text-sm font-bold text-zinc-300 py-2"
+            className="w-full mt-5 flex items-center justify-between text-sm font-bold text-gray-700 py-2"
           >
             <span>Personalize with your resume (optional)</span>
-            <span className="text-teal-500">{showResume ? "−" : "+"}</span>
+            <span className="text-teal-600">{showResume ? "−" : "+"}</span>
           </button>
 
           {showResume && (
@@ -131,7 +141,7 @@ export default function Home() {
               <div className="flex gap-2 mb-2">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-xs font-bold px-3 py-2 rounded-xl bg-zinc-900 border-2 border-zinc-800 text-zinc-300 hover:border-teal-600"
+                  className="text-xs font-bold px-3 py-2 rounded-xl bg-gray-50 border-2 border-gray-200 text-gray-700 hover:border-teal-500"
                 >
                   Upload .txt file
                 </button>
@@ -143,7 +153,7 @@ export default function Home() {
                   className="hidden"
                 />
                 {resumeText && (
-                  <span className="text-xs text-teal-400 self-center font-bold">✓ Resume loaded</span>
+                  <span className="text-xs text-teal-600 self-center font-bold">✓ Resume loaded</span>
                 )}
               </div>
               <textarea
@@ -151,7 +161,32 @@ export default function Home() {
                 onChange={(e) => setResumeText(e.target.value)}
                 placeholder="Or paste your resume text here..."
                 rows={4}
-                className="w-full px-4 py-3 rounded-2xl bg-zinc-900 border-2 border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:border-teal-600 transition text-xs"
+                className="w-full px-4 py-3 rounded-2xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-teal-500 transition text-xs"
+              />
+            </motion.div>
+          )}
+
+          <button
+            onClick={() => setShowJD(!showJD)}
+            className="w-full mt-3 flex items-center justify-between text-sm font-bold text-gray-700 py-2"
+          >
+            <span>Paste a job description (optional)</span>
+            <span className="text-teal-600">{showJD ? "−" : "+"}</span>
+          </button>
+
+          {showJD && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <textarea
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                placeholder="Paste the job description here — questions will be tailored to it..."
+                rows={4}
+                className="w-full px-4 py-3 rounded-2xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-teal-500 transition text-xs"
               />
             </motion.div>
           )}
@@ -160,9 +195,9 @@ export default function Home() {
             whileTap={{ scale: 0.97 }}
             onClick={handleStart}
             disabled={loading}
-            className="w-full mt-5 py-3.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white font-semibold transition disabled:opacity-50 text-sm"
+            className="w-full mt-5 py-3.5 rounded-full bg-linear-to-r from-teal-500 to-blue-500 hover:from-teal-400 hover:to-blue-400 text-white font-bold transition disabled:opacity-50 text-sm shadow-lg shadow-teal-500/20"
           >
-            {loading ? "Loading..." : "Start Practice →"}
+            {loading ? "Loading..." : "Start Practicing Free →"}
           </motion.button>
         </motion.div>
       </main>
