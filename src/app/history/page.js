@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 function calculateStreak(sessions) {
   if (sessions.length === 0) return 0;
 
-  // Get unique dates (just the date part, no time) sorted descending
   const uniqueDates = [
     ...new Set(
       sessions.map((s) => new Date(s.date).toISOString().split("T")[0])
@@ -19,7 +18,6 @@ function calculateStreak(sessions) {
     .toISOString()
     .split("T")[0];
 
-  // Streak only counts if the most recent practice was today or yesterday
   if (uniqueDates[0] !== today && uniqueDates[0] !== yesterday) {
     return 0;
   }
@@ -40,6 +38,13 @@ function calculateStreak(sessions) {
   return streak;
 }
 
+const categoryStyles = {
+  technical: "bg-teal-950 text-teal-400",
+  behavioral: "bg-teal-950 text-teal-400",
+  "system-design": "bg-zinc-800 text-zinc-400",
+  mixed: "bg-zinc-800 text-zinc-400",
+};
+
 export default function History() {
   const [sessions, setSessions] = useState([]);
   const [streak, setStreak] = useState(0);
@@ -49,7 +54,6 @@ export default function History() {
     const saved = JSON.parse(localStorage.getItem("orvix_sessions") || "[]");
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSessions(saved);
-    
     setStreak(calculateStreak(saved));
   }, []);
 
@@ -62,13 +66,13 @@ export default function History() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-900 text-white px-4 py-10">
+    <main className="min-h-screen bg-[#0a0a0a] px-4 py-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Practice History</h1>
+          <h1 className="text-2xl font-extrabold text-white">Practice History</h1>
           <button
             onClick={() => router.push("/")}
-            className="px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 text-sm"
+            className="px-4 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-sm text-zinc-400 font-bold"
           >
             ← Home
           </button>
@@ -76,17 +80,19 @@ export default function History() {
 
         {streak > 0 && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/40 rounded-lg p-4 mb-6 flex items-center gap-3"
+            transition={{ type: "spring" }}
+            className="bg-teal-950/40 rounded-3xl p-4 mb-6 flex items-center gap-3 border-2 border-teal-900"
           >
-            <span className="text-3xl">🔥</span>
+            <div className="w-10 h-10 rounded-xl bg-teal-700 flex items-center justify-center text-white font-extrabold text-sm">
+              {streak}
+            </div>
             <div>
-              <p className="font-bold text-lg">
+              <p className="font-extrabold text-white text-sm">
                 {streak} day{streak > 1 ? "s" : ""} streak!
               </p>
-              <p className="text-sm text-slate-300">
+              <p className="text-xs text-zinc-400 font-medium">
                 Keep practicing daily to grow your streak.
               </p>
             </div>
@@ -94,8 +100,8 @@ export default function History() {
         )}
 
         {sessions.length === 0 ? (
-          <p className="text-slate-400 text-center mt-16">
-           No practice sessions yet. Let&apos;s get started!
+          <p className="text-zinc-500 text-center mt-16 text-sm font-bold">
+            No sessions yet. Let&apos;s start practicing!
           </p>
         ) : (
           <>
@@ -103,14 +109,21 @@ export default function History() {
               {sessions.map((s, i) => (
                 <motion.div
                   key={s.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="bg-slate-800 border border-slate-600 rounded-lg p-4 flex items-center justify-between"
+                  initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: "spring", delay: i * 0.04 }}
+                  className="bg-zinc-950 rounded-2xl p-4 flex items-center justify-between border-2 border-zinc-800 hover:border-zinc-700 transition"
                 >
                   <div>
-                    <p className="font-semibold">{s.role}</p>
-                    <p className="text-sm text-slate-400">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-extrabold text-white text-sm">{s.role}</p>
+                      {s.category && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${categoryStyles[s.category] || categoryStyles.mixed}`}>
+                          {s.category}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-500 font-medium">
                       {new Date(s.date).toLocaleDateString("en-IN", {
                         day: "numeric",
                         month: "short",
@@ -119,12 +132,9 @@ export default function History() {
                         minute: "2-digit",
                       })}{" "}
                       · {s.totalQuestions} questions
-                      {s.category && s.category !== "mixed" && (
-                        <> · {s.category}</>
-                      )}
                     </p>
                   </div>
-                  <span className="text-2xl font-bold text-blue-400">
+                  <span className="text-lg font-extrabold text-teal-500">
                     {s.avgScore}/10
                   </span>
                 </motion.div>
@@ -133,7 +143,7 @@ export default function History() {
 
             <button
               onClick={clearHistory}
-              className="mt-8 text-sm text-red-400 hover:text-red-300 underline"
+              className="mt-8 text-xs text-red-400 hover:text-red-300 underline font-bold"
             >
               Clear all history
             </button>

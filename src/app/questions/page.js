@@ -68,7 +68,6 @@ export default function Questions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Setup speech recognition once
   useEffect(() => {
     const SpeechRecognition =
       typeof window !== "undefined" &&
@@ -201,27 +200,32 @@ export default function Questions() {
     }
   };
 
+  const progressPercent = questions.length
+    ? ((currentIndex + (feedback ? 1 : 0)) / questions.length) * 100
+    : 0;
+
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        <motion.p
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-lg"
-        >
+      <main className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a]">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-10 h-10 rounded-xl bg-teal-700 mb-4"
+        />
+        <p className="text-zinc-400 font-bold text-sm">
           Generating your interview questions...
-        </motion.p>
+        </p>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4">
-        <p className="text-red-400 mb-4">{error}</p>
+      <main className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] px-4">
+        <p className="text-zinc-300 mb-4 text-sm font-medium">{error}</p>
         <button
           onClick={() => fetchQuestions(role, category)}
-          className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
+          className="px-6 py-3 rounded-2xl bg-teal-700 border-b-4 border-teal-900 active:border-b-0 text-white text-sm font-extrabold"
         >
           Try Again
         </button>
@@ -231,59 +235,67 @@ export default function Questions() {
 
   if (sessionDone) {
     return (
-      <motion.main
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4"
-      >
-        <h2 className="text-3xl font-bold mb-4">Session Complete! 🎉</h2>
-        <p className="text-slate-300 mb-2">Role: {role}</p>
-        <motion.p
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="text-5xl font-bold text-blue-400 my-4"
-        >
-          {avgScore}/10
-        </motion.p>
-        <p className="text-slate-400 mb-8">Average Score</p>
-        <div className="flex gap-3">
-          <button
-            onClick={() => router.push("/")}
-            className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 font-semibold"
+      <main className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] px-4">
+        <div className="bg-zinc-950 rounded-3xl p-8 text-center max-w-md w-full border-2 border-zinc-800 shadow-lg">
+          <h2 className="text-2xl font-extrabold text-white mb-4">Session Complete!</h2>
+          <p className="text-zinc-400 text-sm mb-2 font-medium">Role: {role}</p>
+          <motion.p
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, type: "spring" }}
+            className="text-7xl font-extrabold text-teal-500 my-4 tracking-tight"
           >
-            Back to Home
-          </button>
-          <button
-            onClick={() => router.push("/history")}
-            className="px-6 py-3 bg-slate-700 rounded-lg hover:bg-slate-600 font-semibold"
-          >
-            View History
-          </button>
+            {avgScore}<span className="text-2xl text-zinc-600">/10</span>
+          </motion.p>
+          <p className="text-zinc-500 text-xs uppercase tracking-wide mb-8 font-bold">Average Score</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push("/")}
+              className="flex-1 py-3 rounded-2xl bg-teal-700 border-b-4 border-teal-900 active:border-b-0 text-white font-extrabold text-sm"
+            >
+              Home
+            </button>
+            <button
+              onClick={() => router.push("/history")}
+              className="flex-1 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 font-bold text-sm text-zinc-400"
+            >
+              History
+            </button>
+          </div>
         </div>
-      </motion.main>
+      </main>
     );
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4 py-10">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] px-4 py-10">
+      <div className="w-full max-w-xl mb-4">
+        <div className="h-3 bg-zinc-900 rounded-full overflow-hidden border-2 border-zinc-800">
+          <motion.div
+            className="h-full bg-teal-600 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ type: "spring", stiffness: 100 }}
+          />
+        </div>
+      </div>
+
       <motion.div
         key={currentIndex}
         initial={{ opacity: 0, x: 30 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-xl"
+        transition={{ type: "spring", stiffness: 150, damping: 15 }}
+        className="w-full max-w-xl bg-zinc-950 rounded-3xl p-6 border-2 border-zinc-800 shadow-lg"
       >
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-slate-400 text-sm">
-            Question {currentIndex + 1} of {questions.length} — {role}
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-zinc-500 text-xs font-bold">
+            Question {currentIndex + 1}/{questions.length} · {role}
           </p>
-          <p className={`text-sm font-semibold ${timeLeft <= 20 ? "text-red-400" : "text-slate-400"}`}>
-            ⏱ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
+          <p className={`text-xs font-extrabold tabular-nums px-3 py-1 rounded-full ${timeLeft <= 20 ? "bg-red-950 text-red-400" : "bg-teal-950 text-teal-400"}`}>
+            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
           </p>
         </div>
-        <h2 className="text-2xl font-semibold mb-6">
+        <h2 className="text-xl font-bold text-white mb-6 leading-snug">
           {questions[currentIndex]}
         </h2>
 
@@ -294,19 +306,18 @@ export default function Questions() {
             placeholder="Type your answer here, or use the mic to speak..."
             rows={6}
             disabled={!!feedback}
-            className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+            className="w-full px-4 py-3 rounded-2xl bg-zinc-900 border-2 border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:border-teal-600 disabled:opacity-60 font-medium text-sm"
           />
           {voiceSupported && !feedback && (
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.9 }}
               onClick={toggleListening}
               type="button"
               title={isListening ? "Stop recording" : "Start voice input"}
-              className={`absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center transition ${
+              className={`absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center transition text-sm border-2 ${
                 isListening
-                  ? "bg-red-500 hover:bg-red-600"
-                  : "bg-slate-700 hover:bg-slate-600"
+                  ? "bg-red-600 border-red-700 text-white"
+                  : "bg-zinc-950 border-zinc-700 hover:border-zinc-600"
               }`}
             >
               {isListening ? "⏹" : "🎤"}
@@ -315,23 +326,20 @@ export default function Questions() {
         </div>
 
         {isListening && (
-          <p className="text-sm text-red-400 mt-2 animate-pulse">
-            🔴 Listening... speak your answer
-          </p>
+          <p className="text-xs text-red-400 mt-2 font-bold">Listening...</p>
         )}
         {!voiceSupported && (
-          <p className="text-xs text-slate-500 mt-2">
-            Voice input is not supported in this browser. Try Chrome for the best experience.
+          <p className="text-xs text-zinc-500 mt-2">
+            Voice input isn&apos;t supported here. Try Chrome.
           </p>
         )}
 
         {!feedback && (
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.96, y: 4 }}
             onClick={handleSubmitAnswer}
             disabled={!answer.trim() || feedbackLoading}
-            className="w-full mt-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold transition disabled:opacity-50"
+            className="w-full mt-4 py-4 rounded-2xl bg-teal-700 border-b-4 border-teal-900 active:border-b-0 text-white font-extrabold transition disabled:opacity-50 text-sm"
           >
             {feedbackLoading ? "Generating feedback..." : "Submit Answer"}
           </motion.button>
@@ -339,39 +347,36 @@ export default function Questions() {
 
         {feedback && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mt-6 bg-slate-800 border border-slate-600 rounded-lg p-5"
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="mt-6 bg-zinc-900 rounded-2xl p-5 border-2 border-zinc-800"
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-lg">Feedback</h3>
-              <span className="text-2xl font-bold text-blue-400">
+              <h3 className="font-extrabold text-zinc-300 text-sm">Feedback</h3>
+              <span className="text-2xl font-extrabold text-teal-500">
                 {feedback.score}/10
               </span>
             </div>
-            <p className="text-slate-300 mb-2">
-              <span className="font-medium text-green-400">Strengths: </span>
+            <p className="text-zinc-400 text-sm mb-2 leading-relaxed font-medium">
+              <span className="font-extrabold text-emerald-400">Strengths — </span>
               {feedback.strengths}
             </p>
-            <p className="text-slate-300">
-              <span className="font-medium text-yellow-400">
-                Improvements:{" "}
-              </span>
+            <p className="text-zinc-400 text-sm leading-relaxed font-medium">
+              <span className="font-extrabold text-amber-400">Improve — </span>
               {feedback.improvements}
             </p>
             {feedback.betterAnswerTip && (
-              <p className="text-slate-300 mt-2">
-                <span className="font-medium text-blue-400">Tip: </span>
+              <p className="text-zinc-400 text-sm mt-2 leading-relaxed font-medium">
+                <span className="font-extrabold text-teal-400">Tip — </span>
                 {feedback.betterAnswerTip}
               </p>
             )}
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.96, y: 4 }}
               onClick={handleNext}
-              className="w-full mt-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 font-semibold transition"
+              className="w-full mt-5 py-4 rounded-2xl bg-teal-700 border-b-4 border-teal-900 active:border-b-0 text-white font-extrabold transition text-sm"
             >
               {currentIndex < questions.length - 1
                 ? "Next Question →"
