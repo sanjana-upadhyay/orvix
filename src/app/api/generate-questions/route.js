@@ -37,7 +37,7 @@ function getCategoryInstruction(category) {
 
 export async function POST(req) {
   try {
-    const { role, category } = await req.json();
+    const { role, category, resumeText } = await req.json();
 
     if (!role || !role.trim()) {
       return NextResponse.json({ error: "Role is required" }, { status: 400 });
@@ -45,9 +45,14 @@ export async function POST(req) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-flash-lite-latest" });
 
+    const resumeSection =
+      resumeText && resumeText.trim()
+        ? `\n\nThe candidate's resume/background is below. Use specific details from it (projects, skills, past experience) to make some questions personalized and relevant to their actual background, instead of fully generic questions:\n"""\n${resumeText.trim().slice(0, 3000)}\n"""`
+        : "";
+
     const prompt = `You are an expert technical interviewer. Generate 6 interview questions for someone preparing for this role: "${role}".
 
-${getCategoryInstruction(category)}
+${getCategoryInstruction(category)}${resumeSection}
 
 Respond ONLY with a valid JSON array of strings, nothing else. No markdown, no explanation. Example format:
 ["Question 1 here", "Question 2 here", "Question 3 here"]`;
