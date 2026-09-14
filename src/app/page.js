@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 export default function Home() {
   const [role, setRole] = useState("");
   const [category, setCategory] = useState("mixed");
+  const [interviewRound, setInterviewRound] = useState("hr");
   const [resumeText, setResumeText] = useState("");
   const [showResume, setShowResume] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
@@ -24,6 +25,7 @@ export default function Home() {
     setLoading(true);
     sessionStorage.setItem("targetRole", role);
     sessionStorage.setItem("targetCategory", category);
+    sessionStorage.setItem("interviewRound", interviewRound);
     sessionStorage.setItem("resumeText", resumeText);
     sessionStorage.setItem("jobDescription", jobDescription);
     router.push("/questions");
@@ -42,10 +44,16 @@ export default function Home() {
   };
 
   const categories = [
-    { id: "mixed", label: "Mixed", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
-    { id: "technical", label: "Technical", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
-    { id: "behavioral", label: "Behavioral", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
-    { id: "system-design", label: "System Design", bg: "bg-gray-100", active: "bg-teal-600", border: "border-teal-600" },
+    { id: "mixed", label: "Mixed" },
+    { id: "technical", label: "Technical" },
+    { id: "behavioral", label: "Behavioral" },
+    { id: "system-design", label: "System Design" },
+  ];
+
+  const rounds = [
+    { id: "hr", label: "HR Round" },
+    { id: "technical", label: "Technical Round" },
+    { id: "managerial", label: "Managerial Round" },
   ];
 
   return (
@@ -104,6 +112,26 @@ export default function Home() {
           />
 
           <label className="text-sm font-bold text-gray-700 mt-5 mb-2 block">
+            Interview Round
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {rounds.map((r) => (
+              <motion.button
+                key={r.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setInterviewRound(r.id)}
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold transition border-2 ${
+                  interviewRound === r.id
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-gray-100 text-gray-500 border-transparent hover:border-gray-300"
+                }`}
+              >
+                {r.label}
+              </motion.button>
+            ))}
+          </div>
+
+          <label className="text-sm font-bold text-gray-700 mt-5 mb-2 block">
             Question Type
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -114,8 +142,8 @@ export default function Home() {
                 onClick={() => setCategory(cat.id)}
                 className={`py-3 px-3 rounded-2xl text-sm font-bold transition border-2 ${
                   category === cat.id
-                    ? `${cat.active} text-white ${cat.border}`
-                    : `${cat.bg} text-gray-500 border-transparent hover:border-gray-300`
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-gray-100 text-gray-500 border-transparent hover:border-gray-300"
                 }`}
               >
                 {cat.label}

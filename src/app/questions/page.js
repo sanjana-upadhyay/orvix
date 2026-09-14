@@ -20,6 +20,13 @@ export default function Questions() {
     return "mixed";
   });
 
+  const [interviewRound] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("interviewRound") || "hr";
+    }
+    return "hr";
+  });
+
   const [resumeText] = useState(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("resumeText") || "";
@@ -53,14 +60,14 @@ export default function Questions() {
 
   const router = useRouter();
 
-  const fetchQuestions = async (role, category, resumeText, jobDescription) => {
+  const fetchQuestions = async (role, category, resumeText, jobDescription, interviewRound) => {
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/generate-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, category, resumeText, jobDescription }),
+        body: JSON.stringify({ role, category, resumeText, jobDescription, interviewRound }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -79,7 +86,7 @@ export default function Questions() {
       return;
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchQuestions(role, category, resumeText, jobDescription);
+    fetchQuestions(role, category, resumeText, jobDescription, interviewRound);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -244,7 +251,7 @@ export default function Questions() {
         <main className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
           <p className="text-gray-600 mb-4 text-sm font-medium">{error}</p>
           <button
-            onClick={() => fetchQuestions(role, category, resumeText, jobDescription)}
+            onClick={() => fetchQuestions(role, category, resumeText, jobDescription, interviewRound)}
             className="px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold"
           >
             Try Again

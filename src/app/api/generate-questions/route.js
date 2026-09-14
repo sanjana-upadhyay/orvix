@@ -25,19 +25,30 @@ async function generateWithRetry(model, prompt, retries = 3, delay = 2000) {
 function getCategoryInstruction(category) {
   switch (category) {
     case "technical":
-      return "Generate all 6 questions as technical/role-specific questions only (no behavioral/HR questions).";
+      return "Include only technical/role-specific questions (no behavioral/HR questions).";
     case "behavioral":
-      return "Generate all 6 questions as behavioral/HR questions only (no technical questions).";
+      return "Include only behavioral/HR questions (no technical questions).";
     case "system-design":
-      return "Generate all 6 questions as system design questions relevant to this role (architecture, scalability, trade-offs).";
+      return "Include only system design questions relevant to this role (architecture, scalability, trade-offs).";
     default:
       return "Include a mix of:\n- 3 technical/role-specific questions\n- 3 behavioral/HR questions";
   }
 }
 
+function getRoundInstruction(round) {
+  switch (round) {
+    case "technical":
+      return "This is a TECHNICAL ROUND. Focus on coding, system design, tools, and hands-on technical problem-solving relevant to the role.";
+    case "managerial":
+      return "This is a MANAGERIAL ROUND. Focus on leadership, team management, conflict resolution, prioritization, and decision-making scenarios.";
+    default:
+      return "This is an HR ROUND. Focus on cultural fit, motivation, career goals, communication, and general behavioral questions.";
+  }
+}
+
 export async function POST(req) {
   try {
-    const { role, category, resumeText, jobDescription } = await req.json();
+    const { role, category, resumeText, jobDescription, interviewRound } = await req.json();
 
     if (!role || !role.trim()) {
       return NextResponse.json({ error: "Role is required" }, { status: 400 });
@@ -56,6 +67,8 @@ export async function POST(req) {
         : "";
 
     const prompt = `You are an expert technical interviewer. Generate 6 interview questions for someone preparing for this role: "${role}".
+
+${getRoundInstruction(interviewRound)}
 
 ${getCategoryInstruction(category)}${resumeSection}${jdSection}
 
