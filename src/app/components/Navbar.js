@@ -43,9 +43,15 @@ export default function Navbar() {
 
           {user ? (
             <div className="flex items-center gap-2 ml-2">
-              <span className="text-xs text-gray-500 font-medium hidden sm:inline">
-                {user.displayName || user.email}
-              </span>
+             <span className="text-xs text-gray-500 font-medium hidden sm:inline">
+  {user.displayName ||
+    user.email
+      ?.split("@")[0]
+      .replace(/[._]/g, " ")
+      .replace(/\d+/g, "")
+      .trim()
+      .replace(/\b\w/g, (c) => c.toUpperCase())}
+</span>
               <button
                 onClick={handleLogout}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition"

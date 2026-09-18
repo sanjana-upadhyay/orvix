@@ -24,7 +24,11 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
+ const loginWithGoogle = async () => {
+  const result = await signInWithPopup(auth, googleProvider);
+  await result.user.reload();
+  return result;
+};
 
   const signupWithEmail = (email, password) =>
     createUserWithEmailAndPassword(auth, email, password);
