@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../../context/AuthContext";
 
 function calculateStreak(sessions) {
   if (sessions.length === 0) return 0;
@@ -47,9 +48,17 @@ const categoryStyles = {
 };
 
 export default function History() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }// eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading]);
+
   const [sessions, setSessions] = useState([]);
   const [streak, setStreak] = useState(0);
-  const router = useRouter();
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("orvix_sessions") || "[]");
@@ -65,6 +74,14 @@ export default function History() {
       setStreak(0);
     }
   };
+
+  if (authLoading || !user) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-gray-400 text-sm font-bold">Loading...</p>
+      </main>
+    );
+  }
 
   return (
     <>

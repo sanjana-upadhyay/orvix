@@ -1,11 +1,22 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "./components/Navbar";
+import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+  if (!authLoading && !user) {
+    router.push("/login");
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [user, authLoading]);
+
   const [role, setRole] = useState("");
   const [category, setCategory] = useState("mixed");
   const [interviewRound, setInterviewRound] = useState("hr");
@@ -16,7 +27,6 @@ export default function Home() {
   const [showJD, setShowJD] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
-  const router = useRouter();
 
   const handleStart = () => {
     if (!role.trim()) {
@@ -63,6 +73,14 @@ export default function Home() {
     { id: "intermediate", label: "Intermediate" },
     { id: "experienced", label: "Experienced" },
   ];
+
+  if (authLoading || !user) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-gray-400 text-sm font-bold">Loading...</p>
+      </main>
+    );
+  }
 
   return (
     <>

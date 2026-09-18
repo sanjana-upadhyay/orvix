@@ -4,8 +4,18 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Questions() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading]);
+
   const [role] = useState(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("targetRole") || "";
@@ -64,8 +74,6 @@ export default function Questions() {
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(true);
   const recognitionRef = useRef(null);
-
-  const router = useRouter();
 
   const fetchQuestions = async (role, category, resumeText, jobDescription, interviewRound, difficulty) => {
     setLoading(true);
@@ -232,6 +240,14 @@ export default function Questions() {
   const progressPercent = questions.length
     ? ((currentIndex + (feedback ? 1 : 0)) / questions.length) * 100
     : 0;
+
+  if (authLoading || !user) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-gray-400 text-sm font-bold">Loading...</p>
+      </main>
+    );
+  }
 
   if (loading) {
     return (

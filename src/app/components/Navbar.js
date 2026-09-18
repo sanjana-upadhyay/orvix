@@ -1,10 +1,17 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   return (
     <nav className="w-full border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -15,7 +22,8 @@ export default function Navbar() {
           </div>
           <span className="text-gray-900 font-bold text-sm">Orvix</span>
         </button>
-        <div className="flex items-center gap-1">
+
+        <div className="flex items-center gap-2">
           <button
             onClick={() => router.push("/")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
@@ -32,6 +40,27 @@ export default function Navbar() {
           >
             History
           </button>
+
+          {user ? (
+            <div className="flex items-center gap-2 ml-2">
+              <span className="text-xs text-gray-500 font-medium hidden sm:inline">
+                {user.displayName || user.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+              >
+                Log Out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => router.push("/login")}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition ml-2"
+            >
+              Log In
+            </button>
+          )}
         </div>
       </div>
     </nav>
