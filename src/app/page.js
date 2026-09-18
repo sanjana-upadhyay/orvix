@@ -9,6 +9,7 @@ export default function Home() {
   const [role, setRole] = useState("");
   const [category, setCategory] = useState("mixed");
   const [interviewRound, setInterviewRound] = useState("hr");
+  const [difficulty, setDifficulty] = useState("intermediate");
   const [resumeText, setResumeText] = useState("");
   const [showResume, setShowResume] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
@@ -26,6 +27,7 @@ export default function Home() {
     sessionStorage.setItem("targetRole", role);
     sessionStorage.setItem("targetCategory", category);
     sessionStorage.setItem("interviewRound", interviewRound);
+    sessionStorage.setItem("difficulty", difficulty);
     sessionStorage.setItem("resumeText", resumeText);
     sessionStorage.setItem("jobDescription", jobDescription);
     router.push("/questions");
@@ -54,6 +56,12 @@ export default function Home() {
     { id: "hr", label: "HR Round" },
     { id: "technical", label: "Technical Round" },
     { id: "managerial", label: "Managerial Round" },
+  ];
+
+  const difficulties = [
+    { id: "fresher", label: "Fresher" },
+    { id: "intermediate", label: "Intermediate" },
+    { id: "experienced", label: "Experienced" },
   ];
 
   return (
@@ -110,6 +118,26 @@ export default function Home() {
             placeholder="e.g. Frontend Developer at a startup"
             className="w-full px-4 py-3 rounded-2xl bg-gray-50 border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-teal-500 transition font-medium text-sm"
           />
+
+          <label className="text-sm font-bold text-gray-700 mt-5 mb-2 block">
+            Experience Level
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {difficulties.map((d) => (
+              <motion.button
+                key={d.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setDifficulty(d.id)}
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold transition border-2 ${
+                  difficulty === d.id
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-gray-100 text-gray-500 border-transparent hover:border-gray-300"
+                }`}
+              >
+                {d.label}
+              </motion.button>
+            ))}
+          </div>
 
           <label className="text-sm font-bold text-gray-700 mt-5 mb-2 block">
             Interview Round

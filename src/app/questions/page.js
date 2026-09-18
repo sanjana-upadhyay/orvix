@@ -27,6 +27,13 @@ export default function Questions() {
     return "hr";
   });
 
+  const [difficulty] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("difficulty") || "intermediate";
+    }
+    return "intermediate";
+  });
+
   const [resumeText] = useState(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("resumeText") || "";
@@ -60,14 +67,14 @@ export default function Questions() {
 
   const router = useRouter();
 
-  const fetchQuestions = async (role, category, resumeText, jobDescription, interviewRound) => {
+  const fetchQuestions = async (role, category, resumeText, jobDescription, interviewRound, difficulty) => {
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/generate-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, category, resumeText, jobDescription, interviewRound }),
+        body: JSON.stringify({ role, category, resumeText, jobDescription, interviewRound, difficulty }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -86,7 +93,7 @@ export default function Questions() {
       return;
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchQuestions(role, category, resumeText, jobDescription, interviewRound);
+    fetchQuestions(role, category, resumeText, jobDescription, interviewRound, difficulty);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -251,7 +258,7 @@ export default function Questions() {
         <main className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
           <p className="text-gray-600 mb-4 text-sm font-medium">{error}</p>
           <button
-            onClick={() => fetchQuestions(role, category, resumeText, jobDescription, interviewRound)}
+            onClick={() => fetchQuestions(role, category, resumeText, jobDescription, interviewRound, difficulty)}
             className="px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold"
           >
             Try Again

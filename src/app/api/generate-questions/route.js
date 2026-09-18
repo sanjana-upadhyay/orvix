@@ -46,9 +46,20 @@ function getRoundInstruction(round) {
   }
 }
 
+function getDifficultyInstruction(difficulty) {
+  switch (difficulty) {
+    case "fresher":
+      return "The candidate is a FRESHER / entry-level with little to no professional experience. Keep questions foundational — focus on academic projects, internships, fundamentals, and basic scenarios. Avoid deep, senior-level trade-off questions.";
+    case "experienced":
+      return "The candidate is EXPERIENCED / senior-level. Ask advanced, nuanced questions involving trade-offs, leadership, scale, ambiguity, and real-world complexity expected of a senior professional.";
+    default:
+      return "The candidate has INTERMEDIATE experience (a few years). Ask moderately challenging questions that go beyond basics but aren't as advanced as senior-level scenarios.";
+  }
+}
+
 export async function POST(req) {
   try {
-    const { role, category, resumeText, jobDescription, interviewRound } = await req.json();
+    const { role, category, resumeText, jobDescription, interviewRound, difficulty } = await req.json();
 
     if (!role || !role.trim()) {
       return NextResponse.json({ error: "Role is required" }, { status: 400 });
@@ -69,6 +80,8 @@ export async function POST(req) {
     const prompt = `You are an expert technical interviewer. Generate 6 interview questions for someone preparing for this role: "${role}".
 
 ${getRoundInstruction(interviewRound)}
+
+${getDifficultyInstruction(difficulty)}
 
 ${getCategoryInstruction(category)}${resumeSection}${jdSection}
 
